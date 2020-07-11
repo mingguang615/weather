@@ -7,7 +7,9 @@ import (
 	"net/http"
 )
 
-const api = "http://wthrcdn.etouch.cn/weather_mini?city=%s"
+const (
+	api = "http://wthrcdn.etouch.cn/weather_mini"
+)
 
 type WeatherDesc struct {
 	Date      string //日期
@@ -30,11 +32,29 @@ type WeatherResult struct {
 	Desc   string `json:"desc"`
 }
 
-type NewClient int
+type New int
 
 //获取天气
-func (c *NewClient) GetWeather(city string) (*WeatherResult, error) {
-	resp, err := http.Get(fmt.Sprintf(api, city))
+func (n *New) GetWeatherCityName(city string) (*WeatherResult, error) {
+	resp, err := http.Get(fmt.Sprintf(api+"?city=%s", city))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	data, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	weather := new(WeatherResult)
+	if err := json.Unmarshal(data, weather); err != nil {
+		return nil, err
+	}
+	return weather, nil
+}
+
+func (n *New) GetWeatherCityKey(key string) (*WeatherResult, error) {
+	resp, err := http.Get(fmt.Sprintf(api+"?citykey=%s", key))
 	if err != nil {
 		return nil, err
 	}
