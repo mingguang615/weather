@@ -1,6 +1,11 @@
 package weather
 
-var City = map[string]map[string]string{
+import (
+	"errors"
+	"strings"
+)
+
+var CityKey = map[string]map[string]string{
 	"北京": map[string]string{
 		"北京":    "101010100",
 		"海淀":    "101010200",
@@ -2506,4 +2511,20 @@ var City = map[string]map[string]string{
 		"高雄":  "101340201",
 		"台中":  "101340401",
 	},
+}
+
+func GetCitKey(province, city string) (string, error) {
+	if len(province) == 0 || len(city) == 0 {
+		return "", errors.New("provinces and cities cannot be empty")
+	}
+	for k, citys := range CityKey {
+		if strings.Contains(k, province) || strings.Contains(province, k) {
+			for k, code := range citys {
+				if strings.Contains(k, city) || strings.Contains(city, k) {
+					return code, nil
+				}
+			}
+		}
+	}
+	return "", errors.New("provinces and cities not found")
 }
